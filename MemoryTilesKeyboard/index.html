@@ -1,0 +1,85 @@
+<link rel="stylesheet" href="style.css">
+<script src="engine.js"></script>
+
+<script>
+    const tiles = build_tiles();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const tilesDomElement = document.getElementById('tiles_container');
+        const mailInputDomElement = document.getElementById('mail_input');
+
+        tiles.forEach((tileObject) => {
+            const tileDom = document.createElement('span');
+            tileObject.attachDomObject(tileDom);
+            tileDom.className = "tile";
+
+            tileDom.addEventListener('click', () => {
+                activateTile(tileObject);
+            });
+            tilesDomElement.appendChild(tileDom);
+
+            tileObject.redraw();
+        })
+
+        let activeTiles = [];
+
+        const activateTile = function (tileObject) {
+            if (!tileObject.state) {
+                activeTiles.push(tileObject);
+                tileObject.onClickHandler();
+            }
+
+            if (activeTiles.length === 2) {
+                checkTilesMatching(activeTiles);
+            }
+
+        }
+
+        const resetActiveTiles = function (tilesTab) {
+            tilesTab.forEach((tileObject) => {
+                tileObject.resetTileState();
+            });
+
+            activeTiles = [];
+        }
+
+        const checkTilesMatching = function (tilesTab) {
+            let initalValue = tilesTab[0].value;
+            let allGood = true;
+
+            tilesTab.forEach((tile) => {
+                if (allGood) {
+                    allGood = tile.value === initalValue;
+                }
+            });
+
+            resetActiveTiles(tilesTab);
+
+            if (allGood) {
+                processInput(initalValue);
+            }
+            return allGood;
+        }
+
+        const processInput = function (tileValue) {
+            if(tileValue === 'backspace'){
+                mailInputDomElement.value = mailInputDomElement.value.substring(0,mailInputDomElement.value.length -1);
+            }else if(tileValue === 'reset'){
+                mailInputDomElement.value = "";
+            } else if(tileValue === 'submit'){
+                alert(`Your mail is ${mailInputDomElement.value} !`);
+            } else {
+                mailInputDomElement.value = mailInputDomElement.value + tileValue;
+            }
+        }
+
+    });
+
+</script>
+
+Enter your mail :
+<input id="mail_input" value="" readonly/>
+
+<div id="tiles_container">
+
+</div>
